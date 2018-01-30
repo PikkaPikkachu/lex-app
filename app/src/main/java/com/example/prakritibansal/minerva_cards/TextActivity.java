@@ -1,20 +1,23 @@
 package com.example.prakritibansal.minerva_cards;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -25,6 +28,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -46,9 +50,7 @@ import com.amazonaws.services.polly.model.DescribeVoicesResult;
 import com.amazonaws.services.polly.model.OutputFormat;
 import com.amazonaws.services.polly.model.SynthesizeSpeechPresignRequest;
 import com.amazonaws.services.polly.model.Voice;
-import com.example.prakritibansal.minerva_cards.Bot.Convo;
-import com.example.prakritibansal.minerva_cards.Bot.Message;
-import com.example.prakritibansal.minerva_cards.Bot.MsgAdapter;
+
 
 
 import com.prakritibansal.posttextrequest.Continuations.LexServiceContinuation;
@@ -62,15 +64,17 @@ import com.github.zagum.speechrecognitionview.RecognitionProgressView;
 import com.github.zagum.speechrecognitionview.adapters.RecognitionListenerAdapter;
 
 
-import java.text.DateFormat;
-import java.util.Date;
-import java.util.TimeZone;
-
 /**
  * Created by prakritibansal on 12/23/17.
  */
 
 public class TextActivity extends AppCompatActivity {
+
+    // Requesting permission to RECORD_AUDIO
+    private boolean permissionToRecordAccepted = false;
+    private String [] permissions = {Manifest.permission.RECORD_AUDIO};
+    private static final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
+
     private static final String TAG = "TextActivity";
     private static final String plainText = "PlainText";
     private static final String SSML = "SSML";
@@ -89,31 +93,50 @@ public class TextActivity extends AppCompatActivity {
     private Thread background;
 
     private Dialog dialog;
-    //final Context context = this;
     private SpeechRecognizer speechRecognizer;
-    private TimeZone tz;
+    private TextView user_resp;
+    private TextView bot_resp;
     public static LinearLayout userInp;
     public static LinearLayout dotsLoading;
-    private RecyclerView messagesListView;
-    private MsgAdapter listAdapter;
     private ImageView micButton;
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case REQUEST_RECORD_AUDIO_PERMISSION:
+                permissionToRecordAccepted  = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                break;
+        }
+        if (!permissionToRecordAccepted ) finish();
+
+    }
+
 
     @Override
     @SuppressLint("RestrictedApi")
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_text);
+        setContentView(R.layout.activity_showtext);
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        int permissionCheck = ContextCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO);
+        if(permissionCheck == PackageManager.PERMISSION_DENIED){
+            ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION);
+        }
 
         userInp = findViewById(R.id.user);
         micButton = findViewById(R.id.voiceInterface);
         dotsLoading = findViewById(R.id.loading);
         dotsLoading.setVisibility(LinearLayout.GONE);
 
-        tz = TimeZone.getDefault();
+        bot_resp = findViewById(R.id.bot_text);
+        user_resp = findViewById(R.id.user_text);
 
         init();
         initPollyClient();
@@ -284,12 +307,14 @@ public class TextActivity extends AppCompatActivity {
                 if (!inConversation) {
                     Log.d(TAG, " -- New conversation started");
                     startNewConversation();
-                    addMessage(new Message(text, "tx", getCurrentTimeStamp()));
+                    user_resp.setText(text);
+                    //addMessage(new Message(text, "tx", getCurrentTimeStamp()));
                     lexInteractionClient.textInForTextOut(text, null);
                     inConversation = true;
                 } else {
+                    user_resp.setText(text);
                     Log.d(TAG, " -- Responding with text: " + text);
-                    addMessage(new Message(text, "tx", getCurrentTimeStamp()));
+                    //addMessage(new Message(text, "tx", getCurrentTimeStamp()));
                     convContinuation.continueWithTextInForTextOut(text);
                 }
                 lexIsResponding = true;
@@ -326,7 +351,6 @@ public class TextActivity extends AppCompatActivity {
      */
     private void startNewConversation() {
         Log.d(TAG, "Starting new conversation");
-        Convo.clear();
         inConversation = false;
         lexIsResponding = false;
         clearTextInput();
@@ -338,36 +362,6 @@ public class TextActivity extends AppCompatActivity {
      */
     private void clearTextInput() {
         userTextInput.setText("");
-    }
-
-    /**
-     * Show the text message on the screen.
-     *
-     * @param message
-     */
-    private void addMessage(final Message message) {
-        Convo.add(message);
-
-        messagesListView = (RecyclerView) findViewById(R.id.conversationListView);
-
-        listAdapter = new MsgAdapter(getApplicationContext());
-        messagesListView.setAdapter(listAdapter);
-        listAdapter.notifyItemInserted(listAdapter.getCount() - 1);;
-
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
-        linearLayoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        messagesListView.setLayoutManager(linearLayoutManager);
-
-        messagesListView.getLayoutManager().scrollToPosition(listAdapter.getCount() - 1);
-    }
-
-    /**
-     * Current time stamp.
-     *
-     * @return
-     */
-    private String getCurrentTimeStamp() {
-        return DateFormat.getDateTimeInstance().format(new Date());
     }
 
     /**
@@ -412,20 +406,18 @@ public class TextActivity extends AppCompatActivity {
     final InteractionListener interactionListener = new InteractionListener() {
         @Override
         public void onReadyForFulfillment(final TextResponse response) {
-            Log.d(TAG, "Transaction completed successfully");
-            Log.d(TAG, "-----RESPONSE-------"+response.getSessionAttributes());
 
 
             if(response.getTextResponse() != null){
 
                 Map<String, String> responses = ssmlBreakPoint(response.getTextResponse());
 
-                addMessage(new Message(responses.get(plainText), "rx", getCurrentTimeStamp()));
+                bot_resp.setText(plainText);
                 setupPlayButton(responses.get(SSML));
             }
             if(response.getResponseCard()!= null) {
                 GenericAttachment ga = response.getResponseCard().getGenericAttachments().get(0);
-                addMessage(new Message(ga.getTitle(), "cd", ga.getSubTitle(), ga.getImageUrl(), ga.getButtons()));
+                //display response cards
             }
 
             inConversation = false;
@@ -441,11 +433,10 @@ public class TextActivity extends AppCompatActivity {
         public void promptUserToRespond(final TextResponse response,
                                         final LexServiceContinuation continuation) {
 
-            Log.d(TAG, "DIALOG STATE "+ response.getDialogState());
             if(response.getDialogState().equals("Fulfilled")){
                 if(response.getTextResponse() != null){
                     Map<String, String> responses = ssmlBreakPoint(response.getTextResponse());
-                    addMessage(new Message(responses.get(plainText), "rx", getCurrentTimeStamp()));
+                    bot_resp.setText(plainText);
                     setupPlayButton(responses.get(SSML));
                 }
                 inConversation = false;
@@ -459,18 +450,14 @@ public class TextActivity extends AppCompatActivity {
                 if(response.getTextResponse() != null){
 
                     Map<String, String> responses = ssmlBreakPoint(response.getTextResponse());
-                    addMessage(new Message(responses.get(plainText), "rx", getCurrentTimeStamp()));
+                    bot_resp.setText(plainText);
                     setupPlayButton(responses.get(SSML));
                 }
                 if(response.getResponseCard()!= null){
                     GenericAttachment ga = response.getResponseCard().getGenericAttachments().get(0);
-
-                    addMessage(new Message(ga.getTitle(), "cd", ga.getSubTitle(), ga.getImageUrl(), ga.getButtons()));
-
+                    //Display response cards
 
                 }
-
-                Log.d(TAG, "-----CARDS --- "+response.getResponseCard());
 
                 readUserText(continuation);
             }
@@ -486,15 +473,13 @@ public class TextActivity extends AppCompatActivity {
                 if (DialogState.Failed.toString().equals(response.getDialogState())) {
 
                     Map<String, String> responses = ssmlBreakPoint(response.getTextResponse());
-                    addMessage(new Message(responses.get(plainText), "rx", getCurrentTimeStamp()));
-                    Log.d(TAG, "-----RESPONSE: USER TOKEN-------"+response.getSessionAttributes());
+                    bot_resp.setText(plainText);
                     setupPlayButton(responses.get(SSML));
-                    Log.e(TAG, "Interaction error", e);
                     inConversation = false;
 
 
                 } else {
-                    addMessage(new Message("Please retry", "rx", getCurrentTimeStamp()));
+                    bot_resp.setText(plainText);
                 }
             } else {
                 showToast("Lex is not well! Try again in a few hours.");
