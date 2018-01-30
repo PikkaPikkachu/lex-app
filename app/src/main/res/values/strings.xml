@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Sample Bot App</string>
+    <string name="hint_bot">Start by a query &#8230;</string>
+
+    <string name="bot_name">BOTNAMEHERE</string>
+    <string name="bot_alias">BOTALIASHERE</string>
+    <string name="identity_id_test">LEX POOL ID HERE</string>
+    <string name="aws_region">us-east-1</string>
+    <string name="screen_options_main_message">Amazon Lex</string>
+    <string name="polly_pool">POLLY POOL ID HERE</string>
+
+    <string name="feature_app_conversational_bots_permissions_string">Minerva requires permission to use microphone for mphRx bot to listen.</string>
+    <string name="feature_app_conversational_bots_permissions_header">Microphone Permissions</string>
+
+
+    <string name="AskLog">Really Exit?</string>
+    <string name="LogDes">"Are you sure you want to exit?"</string>
+
+    <string name="TokenExpired">Unauthorized access.</string>
+
+    <string name="text_activity_name">Appointment Bot</string>
+</resources>

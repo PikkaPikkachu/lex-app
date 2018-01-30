@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:dots="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:layout_alignParentBottom="true"
+        android:gravity="bottom"
+        android:paddingStart="10dp"
+        android:id="@+id/inps">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:paddingTop="10dp"
+            android:gravity="bottom"
+            android:weightSum="1"
+            android:id="@+id/user">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="45dp"
+                android:orientation="vertical">
+
+
+            <EditText
+                android:id="@+id/userInputEditText"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:hint="@string/hint_bot"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:ems="10"
+                android:inputType="text"
+                android:gravity="bottom"
+                android:layout_marginBottom="2dp"
+                android:maxLines="5"/>
+
+
+            </RelativeLayout>
+
+            <ImageView
+                android:id="@+id/voiceInterface"
+                android:src="@drawable/mic_custom"
+                android:layout_width="30dp"
+                android:layout_height="25dp"
+                android:onClick="getSpeechInput"
+                android:layout_marginBottom="10dp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:paddingTop="10dp"
+            android:gravity="center"
+            android:weightSum="1"
+            android:id="@+id/loading">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textSize="18sp"
+                android:textColor="@color/bg_main"
+                android:text="Bot is replying"
+                android:textStyle="italic"
+                android:gravity="center" />
+
+            <pl.tajchert.waitingdots.DotsTextView
+                android:id="@+id/dotsLoading"
+                android:layout_width="wrap_content"
+                android:layout_height="80dp"
+                android:layout_gravity="center_vertical"
+                android:textColor="@color/bg_main"
+                android:textSize="45sp"
+                android:textStyle="italic"
+                dots:autoplay="true"
+                dots:period="1000" />
+        </LinearLayout>
+    </RelativeLayout>
+
+
+    <android.support.v7.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/conversationListView"
+        android:layout_above="@+id/inps"
+        android:layout_alignParentStart="true"
+        android:paddingLeft="@dimen/activity_text_border"
+        android:paddingRight="@dimen/activity_text_border"/>
+
+</RelativeLayout>
