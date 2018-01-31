@@ -6,7 +6,7 @@ An android library for making Post Text requests to amazon Lex. An abstract libr
 
 To make use of this library simple add the following to gradle.build:
 ```
-compile 'com.github.pikkapikkachu:post-text-lex-request:1.0.0'
+compile 'com.github.pikkapikkachu:post-text-lex-request:1.0.0@aar'
 ```
 
 The usage of this library is quite similar to the amazon-lex-sdk, with just one minor change of renaming the Response class to TextResponse. 
