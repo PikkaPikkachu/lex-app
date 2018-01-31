@@ -12,6 +12,7 @@ compile 'com.github.pikkapikkachu:post-text-lex-request:1.0.0@aar'
 The usage of this library is quite similar to the amazon-lex-sdk, with just one minor change of renaming the Response class to TextResponse. 
 
 ```
+import com.prakritibansal.posttextrequest.*;
 
 final InteractionListener interactionListener = new InteractionListener() {
         @Override
