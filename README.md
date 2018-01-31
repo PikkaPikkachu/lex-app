@@ -1,4 +1,4 @@
-# Response Card Lex & Polly App
+# Lex Library (ft. Response Cards)
 
 An android library for making Post Text requests to amazon Lex. An abstract library built on top of Post Text Request API feauturing response cards from Lex. The sample app, also demos the use of Polly in a chat app. 
 
