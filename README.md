@@ -41,7 +41,7 @@ A sample android app of using the library is provided, an elaborate example of i
 
 ## Developed By
 
-PikkaPikkachu
+PikkaPikkachu with :heart:
 
 ## Contributions
 Contributions to the library as well as sample are more than welcome :)
